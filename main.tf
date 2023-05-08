@@ -256,10 +256,6 @@ resource "aws_s3_object" "object_bootstrap" {
   ]
 }
 
-resource "aws_s3_bucket_acl" "tfe-bucket" {
-  bucket = aws_s3_bucket.tfe-bucket.id
-  acl    = "private"
-}
 
 resource "aws_iam_role" "role" {
   name = "${var.tag_prefix}-role"

@@ -57,11 +57,11 @@ The repo assumes you have no certificates and want to create them using Let's En
 ## Build TFE single instance
 - Clone the repository to your local machine
 ```sh
-git clone https://github.com/munnep/tfe_aws_active_mode.git
+git clone https://github.com/munnep/tfe_aws_active_mode_step.git
 ```
 - Go to the directory
 ```sh
-cd tfe_aws_active_mode
+cd tfe_aws_active_mode_step
 ```
 - Set your AWS credentials
 ```sh
@@ -69,19 +69,19 @@ export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
 export AWS_SESSION_TOKEN=
 ```
-- Store the files needed for the TFE Airgap installation under the `./airgap` directory, See the notes [here](./files/README.md)
+- Store the files needed for the TFE Airgap installation under the `./files` directory, See the notes [here](./files/README.md)
 - create a file called `variables.auto.tfvars` with the following contents and your own values
 ```hcl
-tag_prefix               = "patrick-tfe2"                          # TAG prefix for names to easily find your AWS resources
-region                   = "eu-north-1"                               # Region to create the environment
+tag_prefix               = "patrick-tfe22"                           # TAG prefix for names to easily find your AWS resources
+region                   = "eu-west-1"                               # Region to create the environment
 vpc_cidr                 = "10.234.0.0/16"                            # subnet mask that can be used 
-ami                      = "ami-09f0506c9ef0fb473"                    # AMI of the Ubuntu image  
+ami                      = "ami-05147510eb2885c80"                    # AMI of the Ubuntu image  
 rds_password             = "Password#1"                               # password used for the RDS environment
-filename_airgap          = "652.airgap"                               # filename of your airgap software stored under ./airgap
+filename_airgap          = "665.airgap"                               # filename of your airgap software stored under ./airgap
 filename_license         = "license.rli"                              # filename of your TFE license stored under ./airgap
 filename_bootstrap       = "replicated.tar.gz"                        # filename of the bootstrap installer stored under ./airgap
-dns_hostname             = "patrick-tfe6"                             # DNS hostname for the TFE
-dns_zonename             = "bg.hashicorp-success.com"                 # DNS zone name to be used
+dns_hostname             = "patrick-tfe22"                             # DNS hostname for the TFE
+dns_zonename             = "tf-support.hashicorpdemo.com"                 # DNS zone name to be used
 tfe_password             = "Password#1"                               # TFE password for the dashboard and encryption of the data
 certificate_email        = "patrick.munne@hashicorp.com"              # Your email address used by TLS certificate registration
 terraform_client_version = "1.1.7"                                    # Terraform version you want to have installed on the client machine
@@ -123,7 +123,7 @@ create a user named: admin (with default password)
 create an organization named: test  
 create a workspace named: test-workspace  
 ```
-ssh -J ubuntu@patrick-tfe2-client.bg.hashicorp-success.com ubuntu@10.237.11.21 bash /tmp/tfe_setup.sh
+ssh -J ubuntu@patrick-tfe22-client.tf-support.hashicorpdemo.com ubuntu@10.237.11.21 bash /tmp/tfe_setup.sh
 ```
 
 ### Manual setup of TFE account, organization, workspace
@@ -190,7 +190,7 @@ cd test_terraform
 ```
 terraform {
   cloud {
-    hostname = "patrick-tfe2.bg.hashicorp-success.com"             <-- change this line with your own
+    hostname = "patrick-tfe22.tf-support.hashicorpdemo.com"             <-- change this line with your own
     organization = "test"
 
     workspaces {
@@ -202,7 +202,7 @@ terraform {
 - login with terraform
 
 ```
-terraform login patrick-tfe2.bg.hashicorp-success.com
+terraform login patrick-tfe22.tf-support.hashicorpdemo.com
 ```
 - Run terraform init
 ```

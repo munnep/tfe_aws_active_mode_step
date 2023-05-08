@@ -1,6 +1,6 @@
 terraform {
   cloud {
-    hostname = "patrick-tfe2.bg.hashicorp-success.com"
+    hostname = "patrick-tfe22.tf-support.hashicorpdemo.com"
     organization = "test"
 
     workspaces {
