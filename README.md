@@ -35,7 +35,7 @@ Download the `.airgap` file using the information given to you in your setup ema
 Store this for example under the directory `files/652.airgap`
 
 ## Installer Bootstrap
-[Download the installer bootstrapper](https://install.terraform.io/files/latest.tar.gz)
+[Download the installer bootstrapper](https://install.terraform.io/airgap/latest.tar.gz)
 
 Store this under the directory `files/replicated.tar.gz`
 
