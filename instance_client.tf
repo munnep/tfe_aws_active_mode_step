@@ -40,7 +40,7 @@ resource "aws_eip" "terraform_client-eip" {
 }
 
 resource "aws_instance" "terraform_client" {
-  ami           = var.ami
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.large"
   key_name      = "${var.tag_prefix}-key"
 
