@@ -454,7 +454,7 @@ resource "aws_key_pair" "default-key" {
 
 
 resource "aws_db_subnet_group" "default" {
-  name       = "main"
+  name       = "${var.tag_prefix}-db-subnet-group"
   subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
 
   tags = {
@@ -551,12 +551,12 @@ resource "aws_launch_configuration" "as_conf_tfe_single" {
 }
 
 resource "aws_elasticache_subnet_group" "test" {
-  name       = "test-patrick"
+  name       = "${var.tag_prefix}-cache-subnet-group"
   subnet_ids = [aws_subnet.private1.id]
 }
 
 resource "aws_elasticache_cluster" "example" {
-  cluster_id           = "patrick-example"
+  cluster_id           = "${var.tag_prefix}-cache-cluster"
   engine               = "redis"
   node_type            = "cache.t3.small"
   num_cache_nodes      = 1
