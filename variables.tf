@@ -10,10 +10,6 @@ variable "vpc_cidr" {
   description = "which private subnet do you want to use for the VPC. Subnet mask of /16"
 }
 
-variable "ami" {
-  description = "Must be an Ubuntu image that is available in the region you choose"
-}
-
 variable "dns_hostname" {
   type        = string
   description = "DNS name you use to access the website"
