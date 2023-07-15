@@ -3,7 +3,7 @@ output "ssh_tf_client" {
 }
 
 output "tfe_dashboard" {
-  value = "https://${var.dns_hostname}.${var.dns_zonename}:8800"
+  value = var.tfe_active_active ? "no dashboard in active active" : "https://${var.dns_hostname}.${var.dns_zonename}:8800"
 }
 
 output "tfe_netdata_performance_dashboard" {
