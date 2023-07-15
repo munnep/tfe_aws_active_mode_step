@@ -52,7 +52,6 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
-
 resource "aws_route_table" "publicroutetable" {
   vpc_id = aws_vpc.main.id
 
@@ -71,8 +70,6 @@ resource "aws_eip" "nateIP" {
   vpc = true
 }
 
-
-
 resource "aws_nat_gateway" "NAT" {
   allocation_id = aws_eip.nateIP.id
   subnet_id     = aws_subnet.public1.id
@@ -81,9 +78,6 @@ resource "aws_nat_gateway" "NAT" {
     Name = "${var.tag_prefix}-nat"
   }
 }
-
-
-
 
 resource "aws_route_table" "privateroutetable" {
   vpc_id = aws_vpc.main.id
@@ -97,8 +91,6 @@ resource "aws_route_table" "privateroutetable" {
   }
 
 }
-
-
 
 resource "aws_route_table_association" "PublicRT1" {
   subnet_id      = aws_subnet.public1.id
@@ -205,7 +197,6 @@ resource "aws_security_group" "tfe_server_sg" {
   }
 }
 
-
 resource "aws_s3_bucket" "tfe-bucket" {
   bucket        = "${var.tag_prefix}-bucket"
   force_destroy = true
@@ -223,7 +214,6 @@ resource "aws_s3_bucket" "tfe-bucket-software" {
     Name = "${var.tag_prefix}-software"
   }
 }
-
 
 resource "aws_s3_object" "object_airgap" {
   bucket = "${var.tag_prefix}-software"
@@ -255,7 +245,6 @@ resource "aws_s3_object" "object_bootstrap" {
     aws_s3_bucket.tfe-bucket-software
   ]
 }
-
 
 resource "aws_iam_role" "role" {
   name = "${var.tag_prefix}-role"
@@ -344,14 +333,11 @@ resource "acme_certificate" "certificate" {
   depends_on = [acme_registration.registration]
 }
 
-
-
 resource "aws_acm_certificate" "cert" {
   certificate_body  = acme_certificate.certificate.certificate_pem
   private_key       = acme_certificate.certificate.private_key_pem
   certificate_chain = acme_certificate.certificate.issuer_pem
 }
-
 
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.base_domain.zone_id
@@ -394,7 +380,6 @@ resource "aws_lb_target_group" "lb_target_group3" {
   vpc_id   = aws_vpc.main.id
 }
 
-
 # application load balancer
 resource "aws_lb" "lb_application" {
   name               = "${var.tag_prefix}-lb"
@@ -415,7 +400,6 @@ resource "aws_lb_listener" "front_end1" {
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = aws_acm_certificate.cert.arn
 
-
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.lb_target_group1.arn
@@ -428,7 +412,6 @@ resource "aws_lb_listener" "front_end2" {
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = aws_acm_certificate.cert.arn
-
 
   default_action {
     type             = "forward"
@@ -451,7 +434,6 @@ resource "aws_key_pair" "default-key" {
   key_name   = "${var.tag_prefix}-key"
   public_key = var.public_key
 }
-
 
 resource "aws_db_subnet_group" "default" {
   name       = "${var.tag_prefix}-db-subnet-group"
@@ -498,9 +480,8 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"]
 }
 
-
-resource "aws_launch_configuration" "as_conf_tfe_single" {
-  name_prefix          = "${var.tag_prefix}-lc"
+resource "aws_launch_configuration" "single" {
+  name_prefix          = "${var.tag_prefix}-lc-single"
   image_id             = data.aws_ami.ubuntu.id
   instance_type        = "t3.2xlarge"
   security_groups      = [aws_security_group.tfe_server_sg.id]
@@ -526,7 +507,6 @@ resource "aws_launch_configuration" "as_conf_tfe_single" {
     volume_type = "io1"
     iops        = 2000
   }
-
 
   user_data = templatefile("${path.module}/scripts/user-data-single.sh", {
     tag_prefix         = var.tag_prefix
@@ -567,8 +547,8 @@ resource "aws_elasticache_cluster" "example" {
   subnet_group_name    = aws_elasticache_subnet_group.test.name
 }
 
-resource "aws_launch_configuration" "as_conf_tfe_active" {
-  name_prefix          = "${var.tag_prefix}-lc2"
+resource "aws_launch_configuration" "active" {
+  name_prefix          = "${var.tag_prefix}-lc-active"
   image_id             = data.aws_ami.ubuntu.id
   instance_type        = "t3.2xlarge"
   security_groups      = [aws_security_group.tfe_server_sg.id]
@@ -595,7 +575,6 @@ resource "aws_launch_configuration" "as_conf_tfe_active" {
     iops        = 2000
   }
 
-
   user_data = templatefile("${path.module}/scripts/user-data-active-active.sh", {
     tag_prefix         = var.tag_prefix
     filename_airgap    = var.filename_airgap
@@ -612,25 +591,28 @@ resource "aws_launch_configuration" "as_conf_tfe_active" {
     redis_server       = lookup(aws_elasticache_cluster.example.cache_nodes[0], "address", "No redis created")
   })
 
-
   lifecycle {
     create_before_destroy = true
   }
+
 }
 
 # Automatic Scaling group
-resource "aws_autoscaling_group" "as_group" {
-  name                      = "${var.tag_prefix}-asg"
-  max_size                  = var.asg_max_size
-  min_size                  = var.asg_min_size
+resource "aws_autoscaling_group" "asg" {
+  name = var.tfe_active_active ? "${var.tag_prefix}-asg-active" : "${var.tag_prefix}-asg-single"
+
+  # if single, default to 1
+  max_size         = var.tfe_active_active ? var.asg_max_size : 1
+  min_size         = var.tfe_active_active ? var.asg_min_size : 1
+  desired_capacity = var.tfe_active_active ? var.asg_desired_capacity : 1
+
+  launch_configuration = var.tfe_active_active ? aws_launch_configuration.active.name : aws_launch_configuration.single.name
+
   health_check_grace_period = 3600
   health_check_type         = "ELB"
-  desired_capacity          = var.asg_desired_capacity
   force_delete              = true
-  launch_configuration      = local.tfe_setup
   vpc_zone_identifier       = [aws_subnet.private1.id]
   target_group_arns         = [aws_lb_target_group.lb_target_group1.id, aws_lb_target_group.lb_target_group2.id, aws_lb_target_group.lb_target_group3.id]
-
 
   tag {
     key                 = "Name"
@@ -638,12 +620,19 @@ resource "aws_autoscaling_group" "as_group" {
     propagate_at_launch = true
   }
 
+  depends_on = [
+    aws_nat_gateway.NAT, aws_security_group.tfe_server_sg, aws_internet_gateway.gw, aws_db_instance.default
+  ]
+
   timeouts {
     delete = "15m"
   }
 
-  depends_on = [
-    aws_nat_gateway.NAT, aws_security_group.tfe_server_sg, aws_internet_gateway.gw, aws_db_instance.default
-  ]
+  # as convert to single to active requires new instances
+  # we consider the task as offline / maintenance
+
+  lifecycle {
+    create_before_destroy = false
+  }
 
 }
