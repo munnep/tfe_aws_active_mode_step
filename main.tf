@@ -43,7 +43,6 @@ resource "aws_subnet" "private2" {
   }
 }
 
-
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
@@ -64,7 +63,6 @@ resource "aws_route_table" "publicroutetable" {
     Name = "${var.tag_prefix}-route-table-gw"
   }
 }
-
 
 resource "aws_eip" "nateIP" {
   vpc = true
@@ -165,8 +163,6 @@ resource "aws_security_group" "tfe_server_sg" {
     protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr]
   }
-
-
 
   ingress {
     description = "redis "
@@ -633,6 +629,8 @@ resource "aws_autoscaling_group" "asg" {
 
   lifecycle {
     create_before_destroy = false
+    # any change on launch configuration, will force asg to recreate
+    replace_triggered_by = [aws_launch_configuration.active.name, aws_launch_configuration.single.name]
   }
 
 }
