@@ -86,10 +86,10 @@ tfe_password             = "Password#1"                               # TFE pass
 certificate_email        = "patrick.munne@hashicorp.com"              # Your email address used by TLS certificate registration
 terraform_client_version = "1.1.7"                                    # Terraform version you want to have installed on the client machine
 public_key               = "ssh-rsa AAAAB3Nza"                        # The public key for you to connect to the server over SSH
-asg_min_size             = 1                                          # autoscaling group minimal size. Currently 1 is the only option
-asg_max_size             = 1                                          # autoscaling group maximum size. Currently 1 is the only option
-asg_desired_capacity     = 1                                          # autoscaling group desired capacity. Currently 1 is the only option
-tfe_active_active        = false                                      # TFE instance setup of active/active in the launch of the instance. Default false to start with
+tfe_active_active        = false                                      # TFE instance setup of active/active - false to start with
+asg_min_size             = 1                                          # autoscaling group minimal size.
+asg_desired_capacity     = 2                                          # autoscaling group desired capacity.
+asg_max_size             = 2                                          # autoscaling group maximum size.
 ```
 - Terraform initialize
 ```sh
@@ -110,7 +110,9 @@ Apply complete! Resources: 48 added, 0 changed, 0 destroyed.
 Outputs:
 
 ssh_tf_client = "ssh ubuntu@patrick-tfe3-client.bg.hashicorp-success.com"
-ssh_tfe_server = "ssh -J ubuntu@patrick-tfe3-client.bg.hashicorp-success.com ubuntu@<internal ip address of the TFE server>"
+ssh_tfe_server = [
+  "ssh -J ubuntu@patrick-tfe3-client.bg.hashicorp-success.com ubuntu@<internal ip address of the TFE server>",
+]
 tfe_appplication = "https://patrick-tfe3.bg.hashicorp-success.com"
 tfe_dashboard = "https://patrick-tfe3.bg.hashicorp-success.com:8800"
 tfe_netdata_performance_dashboard = "http://patrick-tfe3.bg.hashicorp-success.com:19999"
@@ -158,18 +160,8 @@ Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
 - Terminate the current instance  
 ![](media/20220921144950.png)    
 - A new instance should be started with an active/active configuration
-  - no more dashboard
 - You should be able to login and see the workspace again. 
-- You can continue to add a second node
-- Change the following value in your `variables.auto.tfvars`
-
-```
-asg_min_size             = 1
-asg_max_size             = 2
-asg_desired_capacity     = 2
-```
 - run terraform apply
-
 ```
 terraform apply
 
