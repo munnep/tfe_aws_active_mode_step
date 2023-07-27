@@ -211,16 +211,6 @@ resource "aws_s3_bucket" "tfe-bucket-software" {
   }
 }
 
-resource "aws_s3_object" "object_airgap" {
-  bucket = "${var.tag_prefix}-software"
-  key    = var.filename_airgap
-  source = "files/${var.filename_airgap}"
-
-  depends_on = [
-    aws_s3_bucket.tfe-bucket-software
-  ]
-}
-
 resource "aws_s3_object" "object_license" {
   bucket = "${var.tag_prefix}-software"
   key    = var.filename_license
@@ -230,16 +220,6 @@ resource "aws_s3_object" "object_license" {
     aws_s3_bucket.tfe-bucket-software
   ]
 
-}
-
-resource "aws_s3_object" "object_bootstrap" {
-  bucket = "${var.tag_prefix}-software"
-  key    = var.filename_bootstrap
-  source = "files/${var.filename_bootstrap}"
-
-  depends_on = [
-    aws_s3_bucket.tfe-bucket-software
-  ]
 }
 
 resource "aws_iam_role" "role" {
@@ -459,7 +439,7 @@ resource "aws_db_instance" "default" {
   }
 
   depends_on = [
-    aws_s3_object.object_bootstrap
+    aws_s3_object.object_license
   ]
 }
 
@@ -505,19 +485,18 @@ resource "aws_launch_configuration" "single" {
   }
 
   user_data = templatefile("${path.module}/scripts/user-data-single.sh", {
-    tag_prefix         = var.tag_prefix
-    certificate_email  = var.certificate_email
-    filename_airgap    = var.filename_airgap
-    filename_license   = var.filename_license
-    filename_bootstrap = var.filename_bootstrap
-    dns_hostname       = var.dns_hostname
-    tfe_password       = var.tfe_password
-    dns_zonename       = var.dns_zonename
-    pg_dbname          = aws_db_instance.default.db_name
-    pg_address         = aws_db_instance.default.address
-    rds_password       = var.rds_password
-    tfe_bucket         = "${var.tag_prefix}-bucket"
-    region             = var.region
+    tag_prefix        = var.tag_prefix
+    certificate_email = var.certificate_email
+    filename_license  = var.filename_license
+    release           = var.release
+    dns_hostname      = var.dns_hostname
+    tfe_password      = var.tfe_password
+    dns_zonename      = var.dns_zonename
+    pg_dbname         = aws_db_instance.default.db_name
+    pg_address        = aws_db_instance.default.address
+    rds_password      = var.rds_password
+    tfe_bucket        = "${var.tag_prefix}-bucket"
+    region            = var.region
   })
 
 
@@ -572,19 +551,18 @@ resource "aws_launch_configuration" "active" {
   }
 
   user_data = templatefile("${path.module}/scripts/user-data-active-active.sh", {
-    tag_prefix         = var.tag_prefix
-    filename_airgap    = var.filename_airgap
-    filename_license   = var.filename_license
-    filename_bootstrap = var.filename_bootstrap
-    dns_hostname       = var.dns_hostname
-    tfe_password       = var.tfe_password
-    dns_zonename       = var.dns_zonename
-    pg_dbname          = aws_db_instance.default.db_name
-    pg_address         = aws_db_instance.default.address
-    rds_password       = var.rds_password
-    tfe_bucket         = "${var.tag_prefix}-bucket"
-    region             = var.region
-    redis_server       = lookup(aws_elasticache_cluster.example.cache_nodes[0], "address", "No redis created")
+    tag_prefix       = var.tag_prefix
+    filename_license = var.filename_license
+    release          = var.release
+    dns_hostname     = var.dns_hostname
+    tfe_password     = var.tfe_password
+    dns_zonename     = var.dns_zonename
+    pg_dbname        = aws_db_instance.default.db_name
+    pg_address       = aws_db_instance.default.address
+    rds_password     = var.rds_password
+    tfe_bucket       = "${var.tag_prefix}-bucket"
+    region           = var.region
+    redis_server     = lookup(aws_elasticache_cluster.example.cache_nodes[0], "address", "No redis created")
   })
 
   lifecycle {

@@ -25,16 +25,12 @@ variable "certificate_email" {
   description = "email adress that the certificate will be associated with on Let's Encrypt"
 }
 
-variable "filename_airgap" {
-  description = "filename of your airgap installation located under directory airgap"
-}
-
 variable "filename_license" {
   description = "filename of your license located under directory airgap"
 }
 
-variable "filename_bootstrap" {
-  description = "filename of your bootstrap located under directory airgap"
+variable "release" {
+  description = "release version"
 }
 
 variable "rds_password" {
@@ -47,14 +43,17 @@ variable "tfe_password" {
 
 variable "asg_min_size" {
   description = "Autoscaling group minimal size"
+  default     = 1
 }
 
 variable "asg_max_size" {
   description = "Autoscaling group maximal size"
+  default     = 1
 }
 
 variable "asg_desired_capacity" {
   description = "Autoscaling group running number of instances"
+  default     = 1
 }
 
 variable "public_key" {
@@ -69,4 +68,5 @@ variable "terraform_client_version" {
 variable "tfe_active_active" {
   type        = bool
   description = "start the TFE instance as active/active setup"
+  default     = false
 }
