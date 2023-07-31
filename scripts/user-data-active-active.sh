@@ -101,7 +101,7 @@ else
 	VERSION=20.10
 fi
 
-DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep $VERSION | sort -Vr | head -n1)
+DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep :$VERSION | sort -Vr | head -n1)
 
 echo $VERSION
 echo $DOCKERVERSION
