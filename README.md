@@ -147,20 +147,26 @@ terraform apply
 Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
 ```
 
-- Terminate the current instance  
-![](media/20220921144950.png)    
-- A new instance should be started with an active/active configuration
-- You should be able to login and see the workspace again. 
-- run terraform apply
-```
-terraform apply
-
-Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
-```
 - you should see a second TFE instance coming online  
 ![](media/20220921150817.png)  
 - Eventually these should be healthy under the load balancer target group
 ![](media/20220921152429.png)    
+- You should be able to login and see the workspace again. 
+- run terraform apply to update the outputs
+```sh
+
+Outputs:
+
+ssh_tf_client = "ssh ubuntu@patrick-tfe3-client.bg.hashicorp-success.com"
+ssh_tfe_server = [
+  "ssh -J ubuntu@patrick-tfe3-client.bg.hashicorp-success.com ubuntu@<internal ip address of the TFE server>",
+  "ssh -J ubuntu@patrick-tfe3-client.bg.hashicorp-success.com ubuntu@<internal ip address of the TFE server>",
+  "ssh -J ubuntu@patrick-tfe3-client.bg.hashicorp-success.com ubuntu@<internal ip address of the TFE server>",
+]
+tfe_appplication = "https://patrick-tfe3.bg.hashicorp-success.com"
+tfe_dashboard = "https://patrick-tfe3.bg.hashicorp-success.com:8800"
+tfe_netdata_performance_dashboard = "http://patrick-tfe3.bg.hashicorp-success.com:19999"
+```
 
 ## testing the active/active environment
 
