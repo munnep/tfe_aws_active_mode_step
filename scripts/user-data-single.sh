@@ -81,24 +81,47 @@ fi
 # Netdata will be listening on port 19999
 curl -sL https://raw.githubusercontent.com/automodule/bash/main/install_netdata.sh | bash
 
+# docker installation
+# v202307 722 >= docker 24
+# v202307 688 >= docker 23
+# v202307 688 < docker 20.10
+
 # install requirements for tfe
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+[ -f /usr/share/keyrings/docker-archive-keyring.gpg ] || {
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+}
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update
-apt-get -y install docker-ce=5:20.10.17~3-0~ubuntu-$(lsb_release -sc) docker-ce-cli=5:20.10.17~3-0~ubuntu-$(lsb_release -sc) containerd.io docker-compose-plugin
+
+release=${release}
+
+if [ $release -eq 0 ]; then
+	VERSION=24
+elif [ $release -ge 713 ]; then
+	VERSION=24
+elif [ $release -ge 688 ]; then
+	VERSION=23
+else
+	VERSION=20.10
+fi
+
+DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep $VERSION | sort -Vr | head -n1)
+
+echo $VERSION
+echo $DOCKERVERSION
+echo apt-get -y install docker-ce=$DOCKERVERSION docker-ce-cli=$DOCKERVERSION containerd.io docker-compose-plugin
+
+apt-get -y install docker-ce=$DOCKERVERSION docker-ce-cli=$DOCKERVERSION containerd.io docker-compose-plugin
+
+# directory for decompress the file
+sudo mkdir -p /var/tmp/tfe
+pushd /var/tmp/tfe
 
 # Download all the software and files needed
 apt-get -y install awscli
-aws s3 cp s3://${tag_prefix}-software/${filename_airgap} /tmp/${filename_airgap}
-aws s3 cp s3://${tag_prefix}-software/${filename_license} /tmp/${filename_license}
-aws s3 cp s3://${tag_prefix}-software/${filename_bootstrap} /tmp/${filename_bootstrap}
+aws s3 cp s3://${tag_prefix}-software/${filename_license} /var/tmp/tfe/${filename_license}
 
-# directory for decompress the file
-sudo mkdir -p /opt/tfe
-pushd /opt/tfe
-sudo tar xzf /tmp/replicated.tar.gz
-
-cat > /tmp/tfe_settings.json <<EOF
+cat > /var/tmp/tfe/settings.json <<EOF
 {
    "aws_instance_profile": {
         "value": "1"
@@ -149,14 +172,13 @@ cat > /etc/replicated.conf <<EOF
     "TlsBootstrapType":                  "self-signed",
     "TlsBootstrapHostname":              "${dns_hostname}.${dns_zonename}",
     "BypassPreflightChecks":             true,
-    "ImportSettingsFrom":                "/tmp/tfe_settings.json",
-    "LicenseFileLocation":               "/tmp/${filename_license}",
-    "LicenseBootstrapAirgapPackagePath": "/tmp/${filename_airgap}"
+    "ImportSettingsFrom":                "/var/tmp/tfe/settings.json",
+    "LicenseFileLocation":               "/var/tmp/tfe/${filename_license}"
 }
 EOF
 
 # script that can be used to configure the environment easily for the first time
-cat > /tmp/tfe_setup.sh <<EOF
+cat > /var/tmp/tfe/setup.sh <<EOF
 #!/usr/bin/env bash
 
 # only really needed when not using valid certificates
@@ -207,4 +229,5 @@ TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metad
 LOCAL_IP=`curl -H "X-aws-ec2-metadata-token: $TOKEN" -v http://169.254.169.254/latest/meta-data/local-ipv4`
 echo $LOCAL_IP
 
-sudo bash ./install.sh airgap private-address=$LOCAL_IP
+curl -sL https://install.terraform.io/ptfe/stable > install.sh
+sudo bash ./install.sh no-docker no-proxy public-address=$LOCAL_IP private-address=$LOCAL_IP release-sequence=${release} | tee install.log
