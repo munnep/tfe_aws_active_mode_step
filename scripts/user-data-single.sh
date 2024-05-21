@@ -94,6 +94,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docke
 apt-get update
 
 release=${release}
+docker=${docker}
 
 if [ $release -eq 0 ]; then
 	VERSION=24
@@ -105,7 +106,11 @@ else
 	VERSION=20.10
 fi
 
-DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep :$VERSION | sort -Vr | head -n1)
+if [ "x$docker" != "x" ]; then
+        DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep :$docker | sort -Vr | head -n1)
+else
+        DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep :$VERSION | sort -Vr | head -n1)
+fi
 
 echo $VERSION
 echo $DOCKERVERSION
