@@ -75,7 +75,7 @@ fi
 
 # Netdata will be listening on port 19999
 curl https://get.netdata.cloud/kickstart.sh > /tmp/netdata-kickstart.sh
-yes | sh /tmp/netdata-kickstart.sh --no-updates --stable-channel --disable-telemetry 
+yes | sh /tmp/netdata-kickstart.sh --no-updates --stable-channel --disable-telemetry --disable-cloud
 
 # docker installation
 # v202307 713 >= docker 24
