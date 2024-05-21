@@ -30,10 +30,8 @@ sysctl vm.drop_caches=1
 echo vm.swappiness=80 >> /etc/sysctl.conf
 echo vm.min_free_kbytes=67584 >> /etc/sysctl.conf
 
-
 SWAP=/dev/$(lsblk|grep nvme | grep -v nvme0n1 |sort -k 4 | awk '{print $1}'| awk '(NR==1)')
 DOCKER=/dev/$(lsblk|grep nvme | grep -v nvme0n1 |sort -k 4 | awk '{print $1}'| awk '(NR==2)')
-
 
 echo $SWAP
 echo $DOCKER
@@ -76,10 +74,9 @@ if [ $? -ne 0 ]; then
 	mount -a
 fi
 
-
-
 # Netdata will be listening on port 19999
-curl -sL https://raw.githubusercontent.com/automodule/bash/main/install_netdata.sh | bash
+curl https://get.netdata.cloud/kickstart.sh > /tmp/netdata-kickstart.sh
+yes | sh /tmp/netdata-kickstart.sh --no-updates --stable-channel --disable-telemetry 
 
 # docker installation
 # v202307 722 >= docker 24

@@ -74,7 +74,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Netdata will be listening on port 19999
-curl -sL https://raw.githubusercontent.com/automodule/bash/main/install_netdata.sh | bash
+curl https://get.netdata.cloud/kickstart.sh > /tmp/netdata-kickstart.sh
+yes | sh /tmp/netdata-kickstart.sh --no-updates --stable-channel --disable-telemetry 
 
 # docker installation
 # v202307 713 >= docker 24
@@ -107,6 +108,12 @@ if [ "x$docker" != "x" ]; then
 else
         DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep :$VERSION | sort -Vr | head -n1)
 fi
+
+echo $VERSION
+echo $DOCKERVERSION
+echo apt-get -y install docker-ce=$DOCKERVERSION docker-ce-cli=$DOCKERVERSION containerd.io docker-compose-plugin
+
+apt-get -y install docker-ce=$DOCKERVERSION docker-ce-cli=$DOCKERVERSION containerd.io docker-compose-plugin
 
 # directory for decompress the file
 sudo mkdir -p /var/tmp/tfe
