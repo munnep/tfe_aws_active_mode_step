@@ -66,7 +66,6 @@ export AWS_SESSION_TOKEN=
 tag_prefix               = "patrick-tfe22"                            # TAG prefix for names to easily find your AWS resources
 region                   = "eu-west-1"                                # Region to create the environment
 vpc_cidr                 = "10.234.0.0/16"                            # subnet mask that can be used 
-ami                      = "ami-05147510eb2885c80"                    # AMI of the Ubuntu image  
 rds_password             = "Password#1"                               # password used for the RDS environment
 release                  = 0                                          # release number. 0 is latest. default to 0
 filename_license         = "license.rli"                              # filename of your TFE license

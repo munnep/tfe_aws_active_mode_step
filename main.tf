@@ -466,22 +466,22 @@ resource "aws_launch_configuration" "single" {
 
   root_block_device {
     volume_size = 50
-    volume_type = "io1"
-    iops        = 1000
+    volume_type = var.volume_type
+    iops        = var.volume_type == "gp2" ? null : 1000
   }
 
   ebs_block_device {
     device_name = "/dev/sdh"
     volume_size = 32
-    volume_type = "io1"
-    iops        = 1000
+    volume_type = var.volume_type
+    iops        = var.volume_type == "gp2" ? null : 2000
   }
 
   ebs_block_device {
     device_name = "/dev/sdi"
     volume_size = 100
-    volume_type = "io1"
-    iops        = 2000
+    volume_type = var.volume_type
+    iops        = var.volume_type == "gp2" ? null : 2000
   }
 
   user_data = templatefile("${path.module}/scripts/user-data-single.sh", {
@@ -489,6 +489,7 @@ resource "aws_launch_configuration" "single" {
     certificate_email = var.certificate_email
     filename_license  = var.filename_license
     release           = var.release
+    docker            = var.docker
     dns_hostname      = var.dns_hostname
     tfe_password      = var.tfe_password
     dns_zonename      = var.dns_zonename
@@ -532,28 +533,29 @@ resource "aws_launch_configuration" "active" {
 
   root_block_device {
     volume_size = 50
-    volume_type = "io1"
-    iops        = 1000
+    volume_type = var.volume_type
+    iops        = var.volume_type == "gp2" ? null : 1000
   }
 
   ebs_block_device {
     device_name = "/dev/sdh"
     volume_size = 32
-    volume_type = "io1"
-    iops        = 1000
+    volume_type = var.volume_type
+    iops        = var.volume_type == "gp2" ? null : 2000
   }
 
   ebs_block_device {
     device_name = "/dev/sdi"
     volume_size = 100
-    volume_type = "io1"
-    iops        = 2000
+    volume_type = var.volume_type
+    iops        = var.volume_type == "gp2" ? null : 2000
   }
 
   user_data = templatefile("${path.module}/scripts/user-data-active-active.sh", {
     tag_prefix       = var.tag_prefix
     filename_license = var.filename_license
     release          = var.release
+    docker           = var.docker
     dns_hostname     = var.dns_hostname
     tfe_password     = var.tfe_password
     dns_zonename     = var.dns_zonename

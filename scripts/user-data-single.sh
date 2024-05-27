@@ -30,10 +30,8 @@ sysctl vm.drop_caches=1
 echo vm.swappiness=80 >> /etc/sysctl.conf
 echo vm.min_free_kbytes=67584 >> /etc/sysctl.conf
 
-
 SWAP=/dev/$(lsblk|grep nvme | grep -v nvme0n1 |sort -k 4 | awk '{print $1}'| awk '(NR==1)')
 DOCKER=/dev/$(lsblk|grep nvme | grep -v nvme0n1 |sort -k 4 | awk '{print $1}'| awk '(NR==2)')
-
 
 echo $SWAP
 echo $DOCKER
@@ -76,10 +74,9 @@ if [ $? -ne 0 ]; then
 	mount -a
 fi
 
-
-
 # Netdata will be listening on port 19999
-curl -sL https://raw.githubusercontent.com/automodule/bash/main/install_netdata.sh | bash
+curl https://get.netdata.cloud/kickstart.sh > /tmp/netdata-kickstart.sh
+yes | sh /tmp/netdata-kickstart.sh --no-updates --stable-channel --disable-telemetry --disable-cloud
 
 # docker installation
 # v202307 722 >= docker 24
@@ -94,6 +91,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docke
 apt-get update
 
 release=${release}
+docker=${docker}
 
 if [ $release -eq 0 ]; then
 	VERSION=24
@@ -105,7 +103,11 @@ else
 	VERSION=20.10
 fi
 
-DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep :$VERSION | sort -Vr | head -n1)
+if [ "x$docker" != "x" ]; then
+        DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep :$docker | sort -Vr | head -n1)
+else
+        DOCKERVERSION=$(apt-cache madison docker-ce | awk '{ print $3 }' | grep :$VERSION | sort -Vr | head -n1)
+fi
 
 echo $VERSION
 echo $DOCKERVERSION

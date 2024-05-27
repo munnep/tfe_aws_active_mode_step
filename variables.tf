@@ -30,7 +30,17 @@ variable "filename_license" {
 }
 
 variable "release" {
-  description = "release version"
+  description = "tfe release version"
+}
+
+variable "docker" {
+  description = "docker version"
+  default     = "" # defaults to empty
+}
+
+variable "volume_type" {
+  description = "disk io type"
+  default     = "io1"
 }
 
 variable "rds_password" {
