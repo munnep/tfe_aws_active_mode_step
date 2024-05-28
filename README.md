@@ -80,6 +80,13 @@ asg_min_size             = 1                                          # autoscal
 asg_desired_capacity     = 2                                          # autoscaling group desired capacity.
 asg_max_size             = 2                                          # autoscaling group maximum size.
 ```
+
+## Optional parameters
+```hcl
+docker                   = "26.1.2"                   # optional
+volume_type              = "gp2"                      # optional       
+```
+
 - Terraform initialize
 ```sh
 terraform init
