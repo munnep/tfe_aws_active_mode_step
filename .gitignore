@@ -4,3 +4,4 @@
 files/*
 terraform.tfstate*
 *.auto.tfvars
+.DS_Store
