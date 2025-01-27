@@ -119,7 +119,7 @@ tfe_netdata_performance_dashboard = "http://patrick-tfe3.bg.hashicorp-success.co
 - Select the instance
 ![](media/connect_session_manager_1.png)   
 - Connect
-![](media/connect_session_manager_1.png)   
+![](media/connect_session_manager_2.png)   
 
 
 ### Connect over SSH using the command line
