@@ -114,6 +114,21 @@ tfe_dashboard = "https://patrick-tfe3.bg.hashicorp-success.com:8800"
 tfe_netdata_performance_dashboard = "http://patrick-tfe3.bg.hashicorp-success.com:19999"
 ```
 
+### Connect over SSH using AWS Console by Session Manager
+
+- Select the instance
+![](media/connect_session_manager_1.png)   
+- Connect
+![](media/connect_session_manager_1.png)   
+
+
+### Connect over SSH using the command line
+
+- Doormat Session
+```
+doormat session --account $ACCOUNT --region "$AWS_REGION"
+```
+
 ### Automated setup of TFE account, organization, workspace
 
 - run the following script to do the following  
